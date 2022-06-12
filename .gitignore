@@ -18,9 +18,6 @@ build/
 *.egg-info/
 
 data/
-splits/
-snapshots/
-worldcities/
+target/
 *.zip
-preprocess/.ipynb_checkpoints/
 /src/.ipynb_checkpoints/

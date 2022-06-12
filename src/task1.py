@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -9,9 +10,6 @@ from lime.lime_text import LimeTextExplainer
 
 
 def compute_metrics(pipeline, X_test, y_test, target_names):
-    """
-    Explaining individual predictions using LIME
-    """
     y_pred = pipeline.predict(X_test)
     score = metrics.accuracy_score(y_test, y_pred)
     print("accuracy:   %0.3f" % score)
@@ -22,6 +20,26 @@ def compute_metrics(pipeline, X_test, y_test, target_names):
     print("confusion matrix:")
     print(metrics.confusion_matrix(y_test, y_pred))
     print()
+
+
+def explain_model_weights(pipeline):
+    feature_names = pipeline["vectorizer"].get_feature_names_out()
+    clf = pipeline.named_steps['classifier']
+    coefs_values = sum([classifier.base_estimator.coef_ for classifier in clf.calibrated_classifiers_])
+    coefs_values = coefs_values / len(clf.calibrated_classifiers_)
+    classes = clf.classes_
+    num_features = 5
+
+    for i, class_label in enumerate(classes):
+        # get indices of top positive coefficient
+        positive_coefs_indices = np.argsort(coefs_values[i])[::-1][:num_features]
+        weights = [coefs_values[i][coef_idx] for coef_idx in positive_coefs_indices]
+        features = [feature_names[coef_idx] for coef_idx in positive_coefs_indices]
+
+        print(class_label)
+        for f, w in zip(features, weights):
+            print("{}: {}".format(f, w))
+        print()
 
 
 def explain_prediction(pipeline, text):
@@ -61,8 +79,7 @@ def main():
     # A model and a pipeline
     vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5, stop_words="english")
 
-    # LinearSVC with L1-based feature selection;
-    # The smaller C, the stronger the regularization. The more regularization, the more sparsity.
+    # LinearSVC with L1-based feature selection
     svm = LinearSVC(penalty="l2")
 
     # a decorator to have predict_proba to be used by LIME
@@ -77,6 +94,7 @@ def main():
     pipeline.fit(X_train, y_train)
 
     compute_metrics(pipeline, X_test, y_test, categories)
+    explain_model_weights(pipeline)
     explain_prediction(pipeline, 'ecm project manager oconus position')
 
 

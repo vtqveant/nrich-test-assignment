@@ -1,18 +1,3 @@
-"""
-1. Feature engineering
-    * character-level features (single-character and two-character abbreviations are abundant, typos and tokenization artifacts to be fought)
-    * abbreviations and shortenings resolution, possibly with a hand-made dictionary
-    * feature bucketing with a simple distance metric (Levenshtein, maybe) to account for simple typos
-    * software vendor names and packages
-2. Оценка feature importance, feature selection
-3. Подбор гиперпараметров и схемы регуляризации для разных моделей с помощью grid search
-    * https://scikit-learn.org/stable/auto_examples/model_selection/grid_search_text_feature_extraction.html#sphx-glr-auto-examples-model-selection-grid-search-text-feature-extraction-py
-4. Построение ансамбля
-5. Оценка перформанса моделей по метрикам для
-    а) классификации на сбалансированном датасете
-    б) классификации на несбалансированном датасете
-"""
-
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -27,9 +12,6 @@ from time import time
 
 
 def compute_metrics(pipeline, X_test, y_test, target_names):
-    """
-    Explaining individual predictions using LIME
-    """
     y_pred = pipeline.predict(X_test)
     score = metrics.accuracy_score(y_test, y_pred)
     print("accuracy:   %0.3f" % score)
@@ -44,7 +26,7 @@ def compute_metrics(pipeline, X_test, y_test, target_names):
 
 class AcronymExpander:
     """
-    Just as a proof of concept, attempt to expand acronyms with a manually curated list
+    Just as a proof of concept, attempt to expand acronyms with a manually curated list.
     """
 
     def __init__(self, filename):
@@ -95,7 +77,8 @@ def main():
         ("classifier", clf)
     ])
 
-    # Parameters to use for grid search.
+    # Parameters to use for grid search
+    # Actually, this is the best variant, I omit the actual search as it takes a lot of time.
     parameters = {
         "features__char_ngram__max_df": [0.14],
         "features__char_ngram__sublinear_tf": [True],
@@ -103,17 +86,18 @@ def main():
         "features__word_ngram__max_df": [0.42],
         "features__word_ngram__sublinear_tf": [True],
         'features__word_ngram__ngram_range': [(1, 2)],
+        # 'features__word_ngram__max_features': [10000, 20000],
         'features__transformer_weights': [
             {"char_ngram": 0.5, "word_ngram": 0.5},
         ],
         # SVC supports class weighting for unbalanced classification
-        # 'classifier__class_weight': [
-        # {'29-1141.00': 0.3, '15-1142.00': 0.3, '31-1014.00': 3.0, '15-1121.00': 3.0},
-        # {}
-        # ]
+        'classifier__base_estimator__class_weight': [
+            # {'29-1141.00': 0.3, '15-1142.00': 0.3, '31-1014.00': 3.0, '15-1121.00': 3.0},
+            {}
+        ]
     }
 
-    # Find the best parameters for both the feature extraction and the classifier
+    # grid search
     grid_search = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1)
 
     print("Performing grid search...")
@@ -131,11 +115,8 @@ def main():
     for param_name in sorted(parameters.keys()):
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
+    # evaluate the best variant on a test set
     pipeline = grid_search.best_estimator_
-    # pipeline.fit(X_train, y_train)
-
-    # print(pipeline.named_steps['features'].get_feature_names_out())
-
     compute_metrics(pipeline, X_test, y_test, categories)
 
 
