@@ -1,0 +1,26 @@
+acronym,expansion,subject
+iccu,"intensive coronary care unit",medical
+sicu,"surgical intensive care unit",medical
+rcu,"respiratory care unit",medical
+scu,"special care unit",medical
+ccu,"coronary care unit",medical
+icu,"intensive care unit",medical
+micu,"medical intensive care unit",medical
+picu,"pulmonary intensive care unit",medical
+vn,"visiting nurse",medical
+crnp,"certified registered nurse practitioner",medical
+lpn,"licensed practical nurse",medical
+pdn,"private duty nurse",medical
+pn,"practical nurse",medical
+rn,"registered nurse",medical
+cna,"certified nursing assistant",medical
+cota,"certified occupational therapy assistant",medical
+mgr,"manager",manager
+asc,"associate",manager
+bi,"business inteligence",developer
+etl,"extract transform load",developer
+jr,"junior",developer
+sr,"senior",developer
+sec,"security",developer
+infosec,"information security",developer
+

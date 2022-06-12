@@ -42,3 +42,37 @@
 6. Оценка перформанса моделей по метрикам для
     а) классификации на сбалансированном датасете
     б) классификации на несбалансированном датасете
+
+
+-------
+
+clf = LinearSVC(penalty="l2")
+
+Best score: 0.472
+Best parameters set:
+	features__char_ngram__max_df: 0.95
+	features__char_ngram__ngram_range: (1, 4)
+	features__transformer_weights: {'char_ngram': 0.5, 'word_ngram': 0.5}
+	features__word_ngram__max_df: 0.65
+	features__word_ngram__ngram_range: (1, 2)
+
+accuracy on test set:   0.489
+
+
+----
+
+Best score: 0.473
+Best parameters set:
+	features__char_ngram__max_df: 0.14
+	features__char_ngram__ngram_range: (1, 3)
+	features__char_ngram__sublinear_tf: True
+	features__transformer_weights: {'char_ngram': 0.5, 'word_ngram': 0.5}
+	features__word_ngram__max_df: 0.42
+	features__word_ngram__ngram_range: (1, 2)
+	features__word_ngram__sublinear_tf: True
+
+accuracy on training set: 0.484
+
+----
+
+https://www.asha.org/siteassets/practice-portal/medicalabbreviations.pdf
